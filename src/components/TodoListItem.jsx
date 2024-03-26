@@ -1,10 +1,12 @@
-import { useContext, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
+import {useSelector,useDispatch} from 'react-redux'
 import { TiPencil, TiTrash,TiTickOutline } from 'react-icons/ti'
-import { TodoContext } from '../shared/todoContext';
-import { ToastContainer, toast } from 'react-toastify';
-
+import {  toast } from 'react-toastify';
+import {deletetodo, edittodo, togglestatus} from '../store/slice/todoslice';
 function TodoListItem({todo}) {
-  const {todos,todoDispatcher} = useContext(TodoContext)
+  // const {todos,todoDispatcher} = useContext(TodoContext)
+  let todos = useSelector((state)=>state.todo.todos)
+  const dispatcher = useDispatch();
   const [editmode,setEditmode] = useState(false)
   const [text,setText] = useState('')
   const myref = useRef()
@@ -22,14 +24,18 @@ function TodoListItem({todo}) {
       });
       if(res.ok){
         let newtodos = todos.map((todoitem)=>{
-            if(todoitem.id == todo.id)
-                todoitem.status = !todoitem.status;
+            if(todoitem.id == todo.id){
+                return {...todoitem,status:!todoitem.status}
+            }
+              
+                // todoitem.status = !todoitem.status;
             return todoitem;
         })
-        todoDispatcher({
-            type:'toggle-status',
-            todos:newtodos
-          });
+        // todoDispatcher({
+        //     type:'toggle-status',
+        //     todos:newtodos
+        //   });
+        dispatcher(togglestatus(newtodos));
           toast(`status successfully changed `,{type:'success',theme:'dark'});
       }
       
@@ -54,10 +60,11 @@ function TodoListItem({todo}) {
                 return todoitem;
             
         })
-        todoDispatcher({
-            type:'deletetodo',
-            todos:newtodos
-          });
+        // todoDispatcher({
+        //     type:'deletetodo',
+        //     todos:newtodos
+        //   });
+        dispatcher(deletetodo(newtodos));
           toast(`Task successfully delete  ${text}`,{type:'error',theme:'colored'});
       }
       
@@ -81,13 +88,15 @@ function TodoListItem({todo}) {
       if(res.ok){
         let newtodos = todos.map((todoitem)=>{
             if(todoitem.id == todo.id)
-                todoitem.title = text;
+                return {...todoitem,title : text};
             return todoitem;
         })
-        todoDispatcher({
-            type:'edittodo',
-            todos:newtodos
-          });
+        // todoDispatcher({
+        //     type:'edittodo',
+        //     todos:newtodos
+        //   });
+        
+        dispatcher(edittodo(newtodos));
         
         toast(`Title successfully change to  ${text}`,{type:'success',theme:'dark'});
         setText('')
@@ -100,7 +109,7 @@ function TodoListItem({todo}) {
   }
   return (
     <>
-    <div className="w-3/5 bg-stone-600  rounded-3xl border border-gray-500 flex justify-between items-center p-4">
+    {todo!=null && (<div className="w-3/5 bg-stone-600  rounded-3xl border border-gray-500 flex justify-between items-center p-4">
                 <div className="flex gap-2">
                     <div key={todo.id}
                       onClick={toggleStatus}
@@ -128,7 +137,7 @@ function TodoListItem({todo}) {
                 {!editmode && (<TiTrash onClick={deletetodoHandler} className="hover:text-white cursor-pointer"/>)}
                  
                 </div>
-            </div>
+            </div>)}
     </>
   )
 }

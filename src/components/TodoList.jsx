@@ -1,14 +1,13 @@
-import { useContext } from 'react'
 import TodoListItem from './TodoListItem'
-import { TodoContext } from '../shared/todoContext'
+import {useSelector} from 'react-redux'
 
 function TodoList() {
 
-    const {todos} = useContext(TodoContext);
+    const todos = useSelector((state)=>state.todo.todos)
     // console.log(todos);
   return (
     <>
-    {todos.map((todo)=>(<TodoListItem key={todo.id} todo={todo}/>))}
+    {(todos!=null && todos.length>0) ? todos.map((todo)=>(<TodoListItem key={todo.id} todo={todo}/>)):  ""}
     
     </>
   )
